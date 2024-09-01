@@ -14,5 +14,5 @@
 |            9| Drukknop              | Drukknop kalibratie/start    | Recup          | 0eur           | 2        | 0eur      |
 |           10| Weerstand 1k ohm      | Weerstand 1k ohm             | Recup          | 0eur           | 2        | 0eur      |
 |           11| Lipo USB oplader      | Oplader voor Lipo-batterijen | Nieuw          | 14,13eur       | 1        | 14,13eur  |
-|           12| Jumper wire 4-pin     | Jumper kabel 4-pin           | Nieuw          | 2,36eur        | 2        | 0eur      |
+|           12| Jumper wire 4-pin     | Jumper kabel 4-pin           | Nieuw          | 2,36eur        | 2        | 4,72eur   |
 
