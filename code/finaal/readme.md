@@ -9,7 +9,7 @@ uint16_t sensorValues[SensorCount];
 *  PID control system variables 
 *************************************************************************/
 int16_t P = 0, I = 0, D = 0;  //int
-float Kp = 0.05 ,Ki = 0.00001, Kd = 0.8;   
+float Kp = 0.08 ,Ki = 0.00005, Kd = 1.0;   
 //float Kp = 0.07 ,Ki = 0.0008, Kd = 0.6;
 /*************************************************************************
 *  Global variables
@@ -86,29 +86,29 @@ void PID_control()
   int error = 3500 - positionLine; //3500 is the ideal position  (the centre)
   P = error;   I = error + I;   D = error - lastError;   lastError = error;   
   int motorSpeedChange = P*Kp + I*Ki + D*Kd; 
-  int motorSpeedA = 0 ,  motorSpeedB = 0;
+  int motorSpeedA = 90 ,  motorSpeedB = 90;                                                //0 0
     
-   if ( motorSpeedChange < -125 )
+   if ( motorSpeedChange < -100 )
       {
          digitalWrite(IN1, HIGH);digitalWrite(IN3, LOW);
           
-         motorSpeedA = (abs (motorSpeedChange)/2 ) + 20  ; 
-         if(motorSpeedA > 75) motorSpeedA = 90 ;              //adapt speed with motor sensitivity
+         motorSpeedA = abs (motorSpeedChange) + 125  ;           //   motorSpeedA = (abs (motorSpeedChange)/2 ) + 20  ;        //90
+         if(motorSpeedA > 175) motorSpeedA = 175 ;              //adapt speed with motor sensitivity
           motorSpeedB = 0;    
       } 
-   else if( motorSpeedChange > 80 )
+   else if( motorSpeedChange > 150 )
       {
           digitalWrite(IN1, LOW);digitalWrite(IN3, HIGH);
           
-          motorSpeedB = ( motorSpeedChange/2 )  + 20;   
-          if(motorSpeedB > 75) motorSpeedB = 90 ;            //adapt speed with motor sensitivity
+          motorSpeedB = abs (motorSpeedChange)  + 125;        //  motorSpeedA = (abs (motorSpeedChange)/2 ) + 20  ;
+          if(motorSpeedB > 175) motorSpeedB = 175 ;            //adapt speed with motor sensitivity
           motorSpeedA = 0  ;  
       }
    else                
       {        
          digitalWrite(IN1, HIGH);digitalWrite(IN3, HIGH);
-          motorSpeedA = 90;       //motorSpeedChange + 50;    //adapt speed with motor sensitivity
-          motorSpeedB = 90;       //motorSpeedChange - 50;               
+          motorSpeedA = 100;       //motorSpeedChange + 50;    //adapt speed with motor sensitivity          //105
+          motorSpeedB = 100;       //motorSpeedChange - 50;                                                  //105
       }
 /*
   Serial.print("POSITION:"); 
@@ -133,15 +133,16 @@ void PID_control()
   
 void forward_movement(int speedA, int speedB) 
  {        
-	            analogWrite(ENA, speedA); // Turn on motor A in direction 1  
-	            analogWrite(ENB, speedB); // Turn on motor B in direction 1                           
+              analogWrite(ENA, speedA); // Turn on motor A in direction 1  
+              analogWrite(ENB, speedB); // Turn on motor B in direction 1                           
  } 
 
 void calibration() {
 
   digitalWrite(LED_BUILTIN, HIGH); // turn on Arduino's LED to indicate we are in calibration mode
-  for (uint16_t i = 0; i < 400; i++)  
-    {   qtr.calibrate();  } 
+  for (uint16_t i = 0; i < 800; i++)  //400
+    {   qtr.calibrate();
+    delay(20);} 
   digitalWrite(LED_BUILTIN, LOW); // turn off Arduino's LED to indicate we are through with calibration
   
   digitalWrite(IN1,HIGH);
