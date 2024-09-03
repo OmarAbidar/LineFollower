@@ -9,7 +9,7 @@ uint16_t sensorValues[SensorCount];
 *  PID control system variables 
 *************************************************************************/
 int16_t P = 0, I = 0, D = 0;  //int
-float Kp = 0.08 ,Ki = 0.00005, Kd = 1.0;   
+float Kp = 0.12 ,Ki = 0.00002, Kd = 1.7; //ki 0.00004    kd 1.3
 //float Kp = 0.07 ,Ki = 0.0008, Kd = 0.6;
 /*************************************************************************
 *  Global variables
@@ -79,37 +79,51 @@ void loop()
  
 void PID_control() 
 {  
-                         // read calibrated sensor values and obtain a measure of the line position
-                         // from 0 to 5000 (for a white line, use readLineWhite() instead)
   uint16_t positionLine = qtr.readLineBlack(sensorValues); 
-
-  int error = 3500 - positionLine; //3500 is the ideal position  (the centre)
-  P = error;   I = error + I;   D = error - lastError;   lastError = error;   
+  int error = 3500 - positionLine; // 3500 is the ideal position (the center)
+  
+  P = error;   
+  I = error + I;   
+  D = error - lastError;   
+  lastError = error;   
+  
   int motorSpeedChange = P*Kp + I*Ki + D*Kd; 
-  int motorSpeedA = 90 ,  motorSpeedB = 90;                                                //0 0
-    
-   if ( motorSpeedChange < -100 )
-      {
-         digitalWrite(IN1, HIGH);digitalWrite(IN3, LOW);
-          
-         motorSpeedA = abs (motorSpeedChange) + 125  ;           //   motorSpeedA = (abs (motorSpeedChange)/2 ) + 20  ;        //90
-         if(motorSpeedA > 175) motorSpeedA = 175 ;              //adapt speed with motor sensitivity
-          motorSpeedB = 0;    
-      } 
-   else if( motorSpeedChange > 150 )
-      {
-          digitalWrite(IN1, LOW);digitalWrite(IN3, HIGH);
-          
-          motorSpeedB = abs (motorSpeedChange)  + 125;        //  motorSpeedA = (abs (motorSpeedChange)/2 ) + 20  ;
-          if(motorSpeedB > 175) motorSpeedB = 175 ;            //adapt speed with motor sensitivity
-          motorSpeedA = 0  ;  
-      }
-   else                
-      {        
-         digitalWrite(IN1, HIGH);digitalWrite(IN3, HIGH);
-          motorSpeedA = 100;       //motorSpeedChange + 50;    //adapt speed with motor sensitivity          //105
-          motorSpeedB = 100;       //motorSpeedChange - 50;                                                  //105
-      }
+  int motorSpeedA = 155 ,  motorSpeedB = 155; //150
+
+  if (motorSpeedChange < -90) // Turn left
+  {
+      digitalWrite(IN1, HIGH);   // Set motor A to reverse
+      digitalWrite(IN2, LOW);
+      
+      motorSpeedA = abs(motorSpeedChange) + 155;  //150
+      if(motorSpeedA > 255) motorSpeedA = 255;
+      
+      digitalWrite(IN3, LOW);  // Set motor B to forward
+      digitalWrite(IN4, HIGH);
+  }
+  else if(motorSpeedChange > 135) // Turn right
+  {
+      digitalWrite(IN1, LOW);  // Set motor A to forward
+      digitalWrite(IN2, HIGH);
+      
+      motorSpeedB = abs(motorSpeedChange) + 155; //150
+      if(motorSpeedB > 255) motorSpeedB = 255;
+      
+      digitalWrite(IN3, HIGH);   // Set motor B to reverse
+      digitalWrite(IN4, LOW);
+      
+  }
+  else // Move forward
+  {        
+      digitalWrite(IN1, HIGH);  // Set motor A to forward
+      digitalWrite(IN2, LOW);
+      
+      digitalWrite(IN3, HIGH);  // Set motor B to forward
+      digitalWrite(IN4, LOW);
+      
+      motorSpeedA = 155; 
+      motorSpeedB = 155;
+  }
 /*
   Serial.print("POSITION:"); 
   Serial.print(positionLine);
@@ -140,7 +154,7 @@ void forward_movement(int speedA, int speedB)
 void calibration() {
 
   digitalWrite(LED_BUILTIN, HIGH); // turn on Arduino's LED to indicate we are in calibration mode
-  for (uint16_t i = 0; i < 800; i++)  //400
+  for (uint16_t i = 0; i < 400; i++)  //400
     {   qtr.calibrate();
     delay(20);} 
   digitalWrite(LED_BUILTIN, LOW); // turn off Arduino's LED to indicate we are through with calibration
